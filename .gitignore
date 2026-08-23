@@ -1,0 +1,57 @@
+# Gradle
+.gradle/
+**/build/
+
+# Minecraft runtime
+run/
+logs/
+crash-reports/
+saves/
+screenshots/
+config/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Java
+*.class
+hs_err_pid*
+replay_pid*
+
+# OS files
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+*.swp
+*~
+
+# Local environment files
+.env
+.env.*
+
+# Do NOT ignore Gradle wrapper
+!gradle/wrapper/
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+!gradlew
+!gradlew.bat
+
+# Keep source and vendored dependencies
+!src/
+!vendor/

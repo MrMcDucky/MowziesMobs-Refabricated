@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "mowziesmobs",
+  "version": "${version}",
+  "name": "Mowzie's Mobs Refabricated Unofficial",
+  "description": "An unofficial Fabric port of Mowzie's Mobs for Minecraft 1.21.1.",
+  "authors": ["BobMowzie", "Wadoo", "Vakypanda", "Noonyez", "pau101"],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/mowzies-mobs",
+    "sources": "https://github.com/BobMowzie/MowziesMobs-Public"
+  },
+  "license": "LicenseRef-MowziesMobs-Custom",
+  "icon": "assets/mowziesmobs/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.bobmowzie.mowziesmobs.MMCommon"],
+    "client": ["com.bobmowzie.mowziesmobs.MMClient"]
+  },
+  "mixins": ["mowziesmobs.mixins.json"],
+  "accessWidener": "mowziesmobs.accesswidener",
+  "jars": [
+    {
+      "file": "META-INF/jars/porting_lib-3.1.0+1.21.1.jar"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": ">=${fabric_api_version}",
+    "geckolib": ">=${geckolib_version} <5",
+    "porting_lib": ">=3.1.0"
+  }
+}

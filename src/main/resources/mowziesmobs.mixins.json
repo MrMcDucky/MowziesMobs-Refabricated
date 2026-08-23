@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.bobmowzie.mowziesmobs.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "mowziesmobs.refmap.json",
+  "mixins": [
+    "ArmorMaterialMixin",
+    "BlockAttachedEntityMixin",
+    "BlockBehaviourMixin",
+    "EntityDataMixin",
+    "EntityDataSerializersCompatMixin",
+    "SpawnPlacementsMixin"
+  ],
+  "client": [
+    "client.BossHealthOverlayAccess",
+    "client.GeoModelMixin",
+    "client.HumanoidArmorLayerAccess",
+    "client.LivingEntityRendererAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

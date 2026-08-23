@@ -1,0 +1,161 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+    maven { url = 'https://maven.parchmentmc.org' }
+    maven { url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven { url = 'https://mvn.devos.one/releases/' }
+    maven { url = 'https://mvn.devos.one/snapshots/' }
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/mowziesmobs.accesswidener')
+
+    mixin {
+        useLegacyMixinAp = true
+        defaultRefmapName = 'mowziesmobs.refmap.json'
+    }
+
+    runs {
+        client {
+            client()
+            name 'Mowzie Refabricated Client'
+        }
+        server {
+            server()
+            name 'Mowzie Refabricated Server'
+            programArgs '--nogui'
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            exclude 'com/bobmowzie/mowziesmobs/datagen/**'
+            exclude 'com/bobmowzie/mowziesmobs/server/world/BiomeModifiersHandler.java'
+            exclude 'com/bobmowzie/mowziesmobs/server/world/MobSpawnBiomeModifier.java'
+        }
+        resources {
+            srcDir 'src/generated/resources'
+            exclude 'META-INF/neoforge.mods.toml'
+            exclude 'META-INF/mods.toml'
+            exclude 'META-INF/accesstransformer.cfg'
+            exclude 'pack.mcmeta'
+        }
+    }
+}
+
+def portingLibJarFile = file('vendor/Porting-Lib/build/libs/porting_lib-3.1.0+1.21.1.jar')
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings { nameSyntheticMembers = false }
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft_version}:${parchment_version}@zip")
+    }
+
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
+
+    modImplementation files(portingLibJarFile)
+
+    def portingLibModuleClassDirs = []
+    file('vendor/Porting-Lib/modules').eachDir { moduleDir ->
+        def classesDir = new File(moduleDir, 'build/classes/java/main')
+        if (classesDir.isDirectory()) {
+            portingLibModuleClassDirs << classesDir
+        }
+    }
+    compileOnly files(portingLibModuleClassDirs)
+
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+    compileOnly 'javax.annotation:javax.annotation-api:1.3.2'
+    implementation 'com.electronwill.night-config:core:3.8.0'
+    implementation 'com.electronwill.night-config:toml:3.8.0'
+
+    annotationProcessor "io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}"
+    modImplementation "io.github.llamalad7:mixinextras-fabric:${mixin_extras_version}"
+}
+
+processResources {
+    inputs.property 'version', project.version
+    inputs.property 'minecraft_version', minecraft_version
+    inputs.property 'loader_version', loader_version
+    inputs.property 'fabric_api_version', fabric_api_version
+    inputs.property 'geckolib_version', geckolib_version
+
+    filesMatching('fabric.mod.json') {
+        expand(
+            version: project.version,
+            minecraft_version: minecraft_version,
+            loader_version: loader_version,
+            fabric_api_version: fabric_api_version,
+            geckolib_version: geckolib_version
+        )
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+java {
+    withSourcesJar()
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+tasks.named('jar', Jar) {
+    doFirst {
+        if (!portingLibJarFile.isFile()) {
+            throw new GradleException("Missing vendored Porting Lib JAR: ${portingLibJarFile}. Run the build through gradlew/gradlew.bat first.")
+        }
+    }
+    from(portingLibJarFile) {
+        into 'META-INF/jars'
+    }
+}
+
+tasks.register('verifyReleaseJar') {
+    dependsOn tasks.named('remapJar')
+    doLast {
+        def productionJar = tasks.named('remapJar').get().archiveFile.get().asFile
+        def names = zipTree(productionJar).files.collect { it.path.replace('\\', '/') }
+        def required = [
+            'mowziesmobs.refmap.json',
+            'data/mowziesmobs/worldgen/structure/wrought_chamber.json',
+            'data/mowziesmobs/worldgen/structure/umvuthana_grove.json',
+            'data/mowziesmobs/worldgen/structure/frostmaw_spawn.json',
+            'data/mowziesmobs/worldgen/structure/monastery.json',
+            'data/mowziesmobs/worldgen/structure_set/wrought_chambers.json',
+            'data/mowziesmobs/worldgen/structure_set/umvuthana_groves.json',
+            'data/mowziesmobs/worldgen/structure_set/frostmaw_spawns.json',
+            'data/mowziesmobs/worldgen/structure_set/monasteries.json',
+            'data/mowziesmobs/tags/worldgen/biome/has_structure/has_mowzie_structure.json'
+        ]
+        def missing = required.findAll { expected -> !names.any { it.endsWith(expected) } }
+        if (!missing.isEmpty()) {
+            throw new GradleException("Missing release resources in ${productionJar.name}: ${missing}")
+        }
+        if (!names.any { it.contains('META-INF/jars/porting_lib-3.1.0+1.21.1') }) {
+            throw new GradleException("Bundled Porting Lib is missing from ${productionJar.name}")
+        }
+    }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('verifyReleaseJar')
+}

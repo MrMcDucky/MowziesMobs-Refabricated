@@ -1,0 +1,22 @@
+package com.bobmowzie.mowziesmobs.client.model;
+
+import com.bobmowzie.mowziesmobs.MMCommon;
+import com.bobmowzie.mowziesmobs.client.model.armor.WroughtHelmModel;
+import com.bobmowzie.mowziesmobs.client.render.block.GongRenderer;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+
+public class LayerHandler {
+    public static final ModelLayerLocation WROUGHT_HELM_LAYER = register("wrought_helm", "main");
+    public static final ModelLayerLocation GONG_LAYER = register("gong", "main");
+
+    public static void registerLayers() {
+        EntityModelLayerRegistry.registerModelLayer(WROUGHT_HELM_LAYER, WroughtHelmModel::createArmorLayer);
+        EntityModelLayerRegistry.registerModelLayer(GONG_LAYER, GongRenderer::createBodyLayer);
+    }
+
+    private static ModelLayerLocation register(String model, String layer) {
+        return new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(MMCommon.MODID, model), layer);
+    }
+}
