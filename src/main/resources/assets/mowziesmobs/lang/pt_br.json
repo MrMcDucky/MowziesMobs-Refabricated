@@ -234,7 +234,7 @@
   "config.mowziesmobs.requires_see_sky": "Precisa Estar a Céu Aberto",
   "config.mowziesmobs.requires_cant_see_sky": "Precisa Não Estar a Céu Aberto",
   "config.mowziesmobs.allowed_blocks": "Blocos Permitidos",
-  "config.mowziesmobs.allowed_block_tags": "Tags de Blocos Permitidos
+  "config.mowziesmobs.allowed_block_tags": "Tags de Blocos Permitidos",
 
   "config.mowziesmobs.generation_data": "Controles de Geração",
   "config.mowziesmobs.generation_data.tooltip": "",
